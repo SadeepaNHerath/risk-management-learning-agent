@@ -1,0 +1,23 @@
+[project]
+name = "risk-management-agent"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "SadeepaNHerath",email = "sadeepahearth@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12, <4.0"
+dependencies = [
+    "pydantic-ai-slim[openai] (>=0.0.36,<0.0.37)",
+    "pydantic-ai (>=0.0.36,<0.0.37)",
+    "openai (>=1.66.2,<2.0.0)",
+    "dotenv (>=0.9.9,<0.10.0)"
+]
+
+[tool.poetry]
+packages = [{include = "risk_management_agent", from = "src"}]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
