@@ -1,9 +1,21 @@
 import os
-from database import create_database, insert_sample_data, get_training_data
-from agent import agent, AgentDependencies
+from fastapi import FastAPI, Depends
+from pydantic import BaseModel
+from agent import agent, AgentDependencies, AgentResponse
 from ml_model import RiskPredictor
+from database import create_database, insert_sample_data, get_training_data
 
-def main():
+# Create FastAPI application
+app = FastAPI()
+
+# Global variable for the ML model
+ml_model = None
+
+
+@app.on_event("startup")
+def startup_event():
+    """Initialize the database and load or train the ML model on startup."""
+    global ml_model
     create_database()
     insert_sample_data()
 
@@ -23,23 +35,40 @@ def main():
         else:
             print("No training data available. Starting with an untrained model.")
 
-    deps = AgentDependencies(ml_model=ml_model)
 
-    print("Welcome to the Construction Risk Management Assistant!")
-    print("Type 'exit' or 'quit' to end the session.")
-    while True:
-        user_input = input("\nEnter your query: ").strip()
-        if user_input.lower() in ["exit", "quit"]:
-            print("Goodbye!")
-            break
-        result = agent.run_sync(user_input, deps=deps)
-        if result.data.response_type == "prediction":
-            print("\nPredicted Risks:", result.data.predicted_risks or "No risks predicted.")
-            print("Suggestions:", result.data.suggestions or "No suggestions available.")
-        elif result.data.response_type == "log":
-            print("\n" + (result.data.log_message or "No confirmation message returned."))
-        else:
-            print("\nUnknown response type received.")
+# Define the request model for the chat endpoint
+class ChatRequest(BaseModel):
+    message: str
+
+
+# Dependency to provide agent dependencies
+def get_agent_deps():
+    return AgentDependencies(ml_model=ml_model)
+
+
+@app.post("/chat", response_model=AgentResponse)
+def chat(request: ChatRequest, deps: AgentDependencies = Depends(get_agent_deps)):
+    """Process the user's message and return the agent's response."""
+    result = agent.run_sync(request.message, deps=deps)
+    return result.data
+
+
+@app.get("/info")
+def get_info():
+    """Provide information about the Risk Management Agent system."""
+    return {
+        "description": "This is a Risk Management Agent for construction projects. It uses a machine learning model to predict potential risks based on project descriptions and allows logging of incidents for record-keeping and model improvement.",
+        "features": [
+            "Predict risks for new project descriptions with tailored suggestions.",
+            "Log incidents with details such as project ID, type, severity, and outcome."
+        ],
+        "version": "1.0",
+        "author": "Sadeepa Herath",
+        "api_documentation": "Visit /docs for interactive API documentation."
+    }
+
 
 if __name__ == "__main__":
-    main()
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
