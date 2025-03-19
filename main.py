@@ -1,19 +1,18 @@
 import os
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
+
 from agent import agent, AgentDependencies, AgentResponse
-from ml_model import RiskPredictor
 from database import create_database, insert_sample_data, get_training_data
+from ml_model import RiskPredictor
 
-# Create FastAPI application
-app = FastAPI()
-
-# Global variable for the ML model
 ml_model = None
 
 
-@app.on_event("startup")
-def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     """Initialize the database and load or train the ML model on startup."""
     global ml_model
     create_database()
@@ -34,14 +33,17 @@ def startup_event():
             print(f"Model trained and saved as {pkl_path}")
         else:
             print("No training data available. Starting with an untrained model.")
+    yield
+    print("Shutting down application.")
 
 
-# Define the request model for the chat endpoint
+app = FastAPI(lifespan=lifespan)
+
+
 class ChatRequest(BaseModel):
     message: str
 
 
-# Dependency to provide agent dependencies
 def get_agent_deps():
     return AgentDependencies(ml_model=ml_model)
 

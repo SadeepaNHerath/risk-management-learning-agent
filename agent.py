@@ -12,15 +12,18 @@ from ml_model import RiskPredictor
 
 load_dotenv()
 
+
 @dataclass
 class AgentDependencies:
     ml_model: 'RiskPredictor'
+
 
 class AgentResponse(BaseModel):
     response_type: str = Field(description="Type of response: 'prediction' or 'log'")
     predicted_risks: Optional[list[str]] = Field(None, description="List of predicted risks")
     suggestions: Optional[list[str]] = Field(None, description="List of suggestions for risk management")
     log_message: Optional[str] = Field(None, description="Confirmation message for logging incident")
+
 
 agent = Agent(
     GroqModel(
@@ -40,10 +43,12 @@ agent = Agent(
     )
 )
 
+
 @agent.tool
 def predict_risks(ctx: RunContext[AgentDependencies], description: str) -> list[str]:
     """Predict potential risks for a new project description using the ML model."""
     return ctx.deps.ml_model.predict(description)
+
 
 @agent.tool
 def log_new_incident(ctx: RunContext[AgentDependencies], project_id: int, incident_type: str, description: str,

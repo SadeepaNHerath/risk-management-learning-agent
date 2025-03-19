@@ -1,9 +1,10 @@
+import joblib
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.multioutput import MultiOutputClassifier
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
-import joblib
 from sklearn.preprocessing import MultiLabelBinarizer
+
 
 class RiskPredictor:
     def __init__(self):
