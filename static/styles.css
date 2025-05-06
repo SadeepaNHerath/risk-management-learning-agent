@@ -1,0 +1,84 @@
+/* Custom styling for Risk Management UI */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+/* Risk level indicators */
+.risk-low {
+    color: #198754;  /* Bootstrap success green */
+}
+
+.risk-medium {
+    color: #ffc107;  /* Bootstrap warning yellow */
+}
+
+.risk-high {
+    color: #fd7e14;  /* Bootstrap orange */
+}
+
+.risk-critical {
+    color: #dc3545;  /* Bootstrap danger red */
+}
+
+/* Card hover effect */
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+}
+
+/* Chart container */
+#risk-visualization {
+    height: 300px;
+}
+
+/* Agent response styling */
+#agent-response {
+    white-space: pre-line;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Tab content transitions */
+.tab-section {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.tab-section.fade-out {
+    opacity: 0;
+}
+
+/* Progress bars for risk levels */
+.risk-progress-bar {
+    height: 8px;
+    margin-bottom: 15px;
+}
+
+/* Custom badge styling */
+.risk-badge {
+    font-size: 85%;
+    padding: 0.35em 0.65em;
+    border-radius: 0.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #risk-visualization {
+        height: 250px;
+    }
+    
+    .card-header h5 {
+        font-size: 1rem;
+    }
+}

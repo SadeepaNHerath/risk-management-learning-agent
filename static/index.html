@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construction Risk Management System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="styles.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-hard-hat me-2"></i>
+                Construction Risk Management
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="risk-analysis-tab">Risk Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="incident-log-tab">Incident Log</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="about-tab">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Risk Analysis Section -->
+        <div id="risk-analysis-section" class="tab-section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-line me-2"></i>Risk Analysis
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="project-form">
+                                <div class="mb-3">
+                                    <label for="project-description" class="form-label">Project Description</label>
+                                    <textarea class="form-control" id="project-description" rows="4" 
+                                        placeholder="Describe your construction project in detail (location, size, type of building, timeline, etc.)"></textarea>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary" id="analyze-btn">
+                                        <i class="fas fa-search me-2"></i>Analyze Risks
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Card - Initially Hidden -->
+            <div id="results-section" style="display: none;">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Risk Assessment Results
+                        </h5>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="export-pdf-btn">
+                            <i class="fas fa-file-pdf me-1"></i>Export PDF
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="loading-spinner" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Analyzing risks...</p>
+                        </div>
+                        
+                        <div id="results-content">
+                            <div id="risk-visualization" class="mb-4"></div>
+                            <div id="agent-response" class="border p-3 rounded bg-light mb-4"></div>
+                            
+                            <h5 class="mt-4">Risk Breakdown</h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="risks-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Risk Category</th>
+                                            <th>Risk Level</th>
+                                            <th>Mitigation Strategy</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Incident Log Section - Initially Hidden -->
+        <div id="incident-log-section" class="tab-section" style="display: none;">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>Incident Log
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="incident-form" class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="project-id" class="form-label">Project ID</label>
+                                <input type="text" class="form-control" id="project-id">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="incident-date" class="form-label">Incident Date</label>
+                                <input type="date" class="form-control" id="incident-date">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="incident-type" class="form-label">Incident Type</label>
+                                <select class="form-select" id="incident-type">
+                                    <option selected disabled>Select incident type</option>
+                                    <option value="Safety">Safety</option>
+                                    <option value="Delay">Delay</option>
+                                    <option value="Budget">Budget Overrun</option>
+                                    <option value="Quality">Quality Issue</option>
+                                    <option value="Environmental">Environmental</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="incident-severity" class="form-label">Severity</label>
+                                <select class="form-select" id="incident-severity">
+                                    <option selected disabled>Select severity</option>
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                    <option value="Critical">Critical</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="incident-description" class="form-label">Description</label>
+                                <textarea class="form-control" id="incident-description" rows="3"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Log Incident
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <h5 class="border-bottom pb-2 mb-3">Recent Incidents</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="incidents-table">
+                            <thead>
+                                <tr>
+                                    <th>Project ID</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Severity</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Section - Initially Hidden -->
+        <div id="about-section" class="tab-section" style="display: none;">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>About the Risk Management System
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <h4>Construction Risk Management Agent</h4>
+                            <p class="lead">A machine learning-powered risk management system for construction projects.</p>
+                            
+                            <h5 class="mt-4">Features</h5>
+                            <ul class="list-group list-group-flush mb-4">
+                                <li class="list-group-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Predict risks for construction projects with AI
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Get tailored risk mitigation strategies
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Log incidents for record keeping and model improvement
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Access via user-friendly UI or REST API
+                                </li>
+                            </ul>
+                            
+                            <h5>Technical Information</h5>
+                            <p>This application uses a machine learning model trained on historical construction project data to predict potential risks in new projects. It analyzes project descriptions to identify safety concerns, potential delays, budget overruns, quality issues, and environmental impacts.</p>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">System Version</h5>
+                                    <p class="card-text" id="system-version">Loading...</p>
+                                    
+                                    <h5 class="card-title mt-3">API Status</h5>
+                                    <div id="api-status">
+                                        <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                                        <span class="ms-2">Checking...</span>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <a href="/docs" target="_blank" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-book me-1"></i>API Documentation
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">Construction Risk Management System &copy; 2025. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+</html>

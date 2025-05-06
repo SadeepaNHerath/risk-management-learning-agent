@@ -1,7 +1,10 @@
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from agent import agent, AgentDependencies, AgentResponse
@@ -37,7 +40,24 @@ async def lifespan(app: FastAPI):
     print("Shutting down application.")
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title="Risk Management Agent API",
+    description="API for predicting and managing risks in construction projects",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# Add CORS middleware to allow cross-origin requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with specific origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount the static directory to serve UI files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 class ChatRequest(BaseModel):
@@ -46,6 +66,12 @@ class ChatRequest(BaseModel):
 
 def get_agent_deps():
     return AgentDependencies(ml_model=ml_model)
+
+
+@app.get("/", response_class=HTMLResponse)
+async def root():
+    """Redirect to UI."""
+    return RedirectResponse(url="/static/index.html")
 
 
 @app.post("/chat", response_model=AgentResponse)
@@ -70,7 +96,19 @@ def get_info():
     }
 
 
+@app.get("/health")
+def health_check():
+    """Health check endpoint for monitoring systems."""
+    return {"status": "healthy", "model_loaded": ml_model is not None}
+
+
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8000"))
+    debug = os.getenv("DEBUG", "False").lower() == "true"
+    
+    print(f"Starting server on {host}:{port}")
+    print(f"Visit http://localhost:{port} to access the UI")
+    uvicorn.run(app, host=host, port=port, reload=debug)
